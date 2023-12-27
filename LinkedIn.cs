@@ -5,15 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace RyanSwanstrom.Function
 {
-    public class LinkedInToSocial
+    public class LinkedIn
     {
         // An Azure Function to deploy WordPress Blog Post Content to LinkedIn
-        [FunctionName("LinkedInToSocial")]
-        public void Run([TimerTrigger("17 */5 * * * *")]TimerInfo myTimer, ILogger log)
+        // time hour 14 in UTC is 8am CST
+        [FunctionName("LinkedIn")]
+        public void Run([TimerTrigger("17 */2 * * * *")]TimerInfo myTimer, ILogger log)
         {
+            log.LogInformation($"LinkedIn");
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            log.LogInformation($"Eventually, this Azure Function will check the blog and post new stuff to LinkedIn");
-            log.LogInformation($"More Posting to LinkedIn");
+            log.LogInformation($"This Azure Function will check the blog and post new stuff to LinkedIn");
         }
     }
 }
