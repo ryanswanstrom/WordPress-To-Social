@@ -9,7 +9,7 @@ namespace RyanSwanstrom.Function
     {
         // An Azure Function to deploy WordPress Blog Post Content to LinkedIn
         [FunctionName("LinkedInToSocial")]
-        public void Run([TimerTrigger("17 */2 * * * *")]TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("17 */5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             log.LogInformation($"Eventually, this Azure Function will check the blog and post new stuff to LinkedIn");
