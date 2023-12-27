@@ -13,6 +13,7 @@ namespace RyanSwanstrom.Function
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             log.LogInformation($"Eventually, this Azure Function will check the blog and post new stuff to LinkedIn");
+            log.LogInformation($"More Posting to LinkedIn");
         }
     }
 }
