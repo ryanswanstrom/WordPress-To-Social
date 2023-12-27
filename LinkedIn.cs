@@ -10,7 +10,7 @@ namespace RyanSwanstrom.Function
         // An Azure Function to deploy WordPress Blog Post Content to LinkedIn
         // time hour 14 in UTC is 8am CST
         [FunctionName("LinkedIn")]
-        public void Run([TimerTrigger("17 02 14 * * *")]TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("17 30 14 * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"LinkedIn");
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
