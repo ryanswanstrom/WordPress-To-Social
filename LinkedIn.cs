@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using WordPressPCL.Models;
 
 namespace RyanSwanstrom.Function
 {
@@ -13,7 +14,7 @@ namespace RyanSwanstrom.Function
 
         // An Azure Function to deploy WordPress Blog Post Content to LinkedIn
         // time hour 14 in UTC is 8am CST
-        // TIMER_SCHEDULE is a binding expression, every 2 minutes on local or 8:30am in prod
+        // TIMER_SCHEDULE is a binding expression, every 2 minutes on local or 8:30am on prod
         [FunctionName("LinkedIn")]
         public void Run([TimerTrigger("%TIMER_SCHEDULE%")]TimerInfo myTimer, ILogger log)
         {            
@@ -47,9 +48,19 @@ namespace RyanSwanstrom.Function
                 platforms.Add(platform);
                 json.Add("platforms", platforms);
 
-                //JsonArray mediaUrls = new JsonArray();
-                //mediaUrls.Add(Photo.PhotoUrl); // set to the Photo URL
-                //json.Add("mediaUrls", mediaUrls);
+                if ( !String.IsNullOrEmpty(post.VerticalVideo) )
+                {
+                    JsonArray mediaUrls = new JsonArray();
+                    mediaUrls.Add(post.VerticalVideo); // set to the Photo URL
+                    json.Add("mediaUrls", mediaUrls);
+
+                    if ( !String.IsNullOrEmpty(post.VerticalVideoThumbnail))
+                    {
+                        JsonObject options = new JsonObject();
+                        options.Add("thumbNail", post.VerticalVideoThumbnail);
+                        json.Add("linkedInOptions", options); 
+                    }
+                }
 
                 //add auto schedule options
                 JsonObject sched = new JsonObject();

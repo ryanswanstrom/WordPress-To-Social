@@ -27,30 +27,28 @@ namespace RyanSwanstrom.Function
             Task<IEnumerable<Post>> posts = wpclient.Posts.QueryAsync(queryBuilder);
             foreach (Post p in posts.Result)
             {
-                SocialPost sp = new SocialPost();
+                SocialPost sp = ParseText(p.Content.Rendered, wpclient);
                 sp.Title = p.Title.Rendered;
-                sp.Text = CleanText(p.Content.Rendered);
                 sp.URL = p.Link;
-                // TODO: FindImages
-                // TODO: FindVideos
                 socialPosts.Add(sp);
             }
 
             return socialPosts;
         }
 
-        private static String CleanText(String text)
+        private static SocialPost ParseText(String text, WordPressClient wpclient)
         {
             Console.WriteLine(text);
+            SocialPost sp = new SocialPost();
             String cleanString = text;
             if (String.IsNullOrEmpty(text))
             {
-                return String.Empty;
+                return sp;
             }
-            int currIx = 0;
+            //int currIx = 0;
             // find paragraphs and extract text
             // continue until <!--more-->
-            // is it <p> <ul> or <ol>
+            // is it <p> <ul> or <ol> or <figure>
             string output = String.Empty;
 
             do
@@ -96,17 +94,82 @@ namespace RyanSwanstrom.Function
                     // trim off the training newline
                     output = output.Trim();
                     cleanString = cleanString.Substring(cleanString.IndexOf("</ol>") + 5);
-                } else
+                } 
+                else if (cleanString.StartsWith("<figure"))
+                {
+                    Console.WriteLine("figure");
+                    Console.WriteLine(cleanString);
+
+                    //TODO: sp.Video = URL 
+                    // pull out the <figure   to </figure> 
+                    string fig = cleanString.Substring(0, cleanString.IndexOf("</figure>"));
+                    // find the ID after videopress.com/embed/
+                    int vidstart = fig.IndexOf("videopress.com/embed/"); //21
+                    int vidend = fig.IndexOf('?', vidstart + 21);
+                    Console.WriteLine($"start is {vidstart} and the end is {vidend}");
+                    string VidID = fig.Substring(vidstart + 21, vidend - vidstart - 21);
+                    Console.WriteLine($"Vid ID is: {VidID}");
+                    // get videos from Wordpress for last 30 days and find the one with that ID in the SourceUrl
+                    var queryBuilder = new MediaQueryBuilder();
+                    queryBuilder.MimeType = "video/videopress";
+                    queryBuilder.After = DateTime.Now.AddDays(-30);
+                    var media = wpclient.Media.QueryAsync(queryBuilder);
+                    media.Wait();
+                    foreach (MediaItem m in media.Result)
+                    {
+                        Console.WriteLine(" the id is: " + m.Id);
+                        Console.WriteLine("width: " + m.MediaDetails.Width);
+                        Console.WriteLine("height: " + m.MediaDetails.Height);
+                        Console.WriteLine("source: " + m.SourceUrl); // this is it
+                        Console.WriteLine("media: " + m.MediaType);
+                        Console.WriteLine("mime: " + m.MimeType);
+                        if (m.SourceUrl.Contains(VidID)) {
+                            if (m.MediaDetails.Height > m.MediaDetails.Width)
+                            {
+                                sp.VerticalVideo = m.SourceUrl;
+                            } else {
+                                sp.HorzVideo = m.SourceUrl;
+                            }
+                            break;
+                        }
+                    }
+                    // get posterUrl for video cover image sp.VideoCoverImg
+                    int posterUrlLoc = fig.IndexOf("posterUrl=");
+                    if (posterUrlLoc > -1)
+                    { 
+                        // get the string and replace %2F with / and %3A with colon
+                        string thumb = fig.Substring(posterUrlLoc + 10, fig.IndexOf("&", posterUrlLoc) - posterUrlLoc - 10 );
+                        thumb = thumb.Replace("%2F", "/");
+                        thumb = thumb.Replace("%3A", ":");
+                        if (sp.VerticalVideo != null)
+                        {
+                            sp.VerticalVideoThumbnail = thumb;
+                        } else {
+                            sp.HorzVideoThumbnail = thumb;
+                        }                       
+                        
+                        Console.WriteLine($"The thumbnail is: {thumb}");
+                    }
+                    
+                    
+                    cleanString = cleanString.Substring(cleanString.IndexOf("</figure>") + 9);
+                    
+                } 
+                else
                 {
                     Console.WriteLine("something else");
                     // something else happens, just break out, avoid an infinite loop
                     break;
                 }
-                output += Environment.NewLine + Environment.NewLine;
+                if ( !String.IsNullOrEmpty(output) )
+                {
+                    output += Environment.NewLine + Environment.NewLine;
+                }
             } while (!String.IsNullOrEmpty(cleanString) && !cleanString.StartsWith("<!--more-->"));
                         
-            // potentially remove other HTML tags
-            return output.Trim();
+            
+            sp.Text = output;
+            return sp;
         }
     }
 }
