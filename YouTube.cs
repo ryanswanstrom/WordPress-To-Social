@@ -28,55 +28,61 @@ namespace RyanSwanstrom.Function
         {
             string platform = "youtube";
             log.LogInformation($"Post {platform} starting");
-            string response = "";
-            if (post.Video != null && !string.IsNullOrEmpty(post.Title) && !string.IsNullOrEmpty(post.Text))
+            if (String.IsNullOrEmpty(post.Video) )
             {
-
-                JsonObject json = new JsonObject();
-                json.Add("post", post.Text);
-
-                JsonArray platforms = new JsonArray();
-                platforms.Add(platform);
-                json.Add("platforms", platforms);
-
-                JsonArray mediaUrls = new JsonArray();
-                mediaUrls.Add(post.Video); // set to the vid URL
-                json.Add("mediaUrls", mediaUrls);
-
-                //add youtube options
-                JsonObject ytOptions = new JsonObject();
-                ytOptions.Add("title", post.Title);
-                ytOptions.Add("visibility", "public");
-                if (!String.IsNullOrEmpty(post.VideoThumbnail))
-                {
-                    ytOptions.Add("thumbNail", post.VideoThumbnail);
-                }
-                if (post.IsVideoVertical)
-                {
-                    ytOptions.Add("shorts", true);
-                }
-                ytOptions.Add("notifySubscribers", true);
-                JsonArray jsonTags = new JsonArray();
-                foreach (string tag in post.Tags)
-                {
-                    jsonTags.Add(tag);
-                }
-                ytOptions.Add("tags", jsonTags);
-                json.Add("youTubeOptions", ytOptions);
-
-                
-                //add auto schedule options
-                JsonObject sched = new JsonObject();
-                sched.Add("title", SocialMediaHelper.YOUTUBE_SCHEDULE);
-                sched.Add("schedule", true);
-                json.Add("autoSchedule", sched); 
-
-                response = SocialMediaHelper.PostToSocial(json, log);
-            }
-            else
+                log.LogInformation($"YouTube: post does not contain a video");
+                return;
+            } 
+            if (String.IsNullOrEmpty(post.Text))
             {
-                log.LogInformation($"Post {platform}: Video, title, or desc is null: {post}");
+                log.LogInformation($"YouTube: post does not contain Text");
+                return;
             }
+
+            JsonObject json = new JsonObject();
+            json.Add("post", post.Text[..Math.Min(post.Text.Length, 3000)]);
+
+            JsonArray platforms = new JsonArray();
+            platforms.Add(platform);
+            json.Add("platforms", platforms);
+
+            JsonArray mediaUrls = new JsonArray();
+            mediaUrls.Add(post.Video); // set to the vid URL
+            json.Add("mediaUrls", mediaUrls);
+
+            //add youtube options
+            JsonObject ytOptions = new JsonObject();
+            if (!String.IsNullOrEmpty(post.Title)) 
+            {
+                ytOptions.Add("title", post.Title[..Math.Min(post.Title.Length, 100)] );
+            }
+            ytOptions.Add("visibility", "public");
+            if (!String.IsNullOrEmpty(post.VideoThumbnail))
+            {
+                ytOptions.Add("thumbNail", post.VideoThumbnail);
+            }
+            if (post.IsVideoVertical)
+            {
+                ytOptions.Add("shorts", true);
+            }
+            ytOptions.Add("notifySubscribers", true);
+            JsonArray jsonTags = new JsonArray();
+            foreach (string tag in post.Tags)
+            {
+                jsonTags.Add(tag);
+            }
+            ytOptions.Add("tags", jsonTags);
+            json.Add("youTubeOptions", ytOptions);
+
+            
+            //add auto schedule options
+            JsonObject sched = new JsonObject();
+            sched.Add("title", SocialMediaHelper.YOUTUBE_SCHEDULE);
+            sched.Add("schedule", true);
+            json.Add("autoSchedule", sched); 
+
+            string response = SocialMediaHelper.PostToSocial(json, log);
+            
             log.LogInformation($"Post {platform} response: {response}");
         }
     }
