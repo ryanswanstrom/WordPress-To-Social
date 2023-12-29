@@ -10,8 +10,6 @@ namespace RyanSwanstrom.Function
 {
     public class LinkedIn
     {
-        private static string LINKEDIN_SCHEDULE = Environment.GetEnvironmentVariable("LINKEDIN_SCHEDULE");
-
         // An Azure Function to deploy WordPress Blog Post Content to LinkedIn
         // time hour 14 in UTC is 8am CST
         // TIMER_SCHEDULE is a binding expression, every 2 minutes on local or 8:30am on prod
@@ -19,25 +17,19 @@ namespace RyanSwanstrom.Function
         public void Run([TimerTrigger("%TIMER_SCHEDULE%")]TimerInfo myTimer, ILogger log)
         {            
             log.LogInformation($"LinkedIn: checking for new blog posts: {DateTime.Now}");
-            log.LogInformation($"This Azure Function will check the blog and post new stuff to LinkedIn");
-            List<SocialPost> posts = BlogHelper.FindPosts(BlogHelper.LINKEDIN_CAT, 1.0);
-
+            List<SocialPost> posts = BlogHelper.FindPosts(BlogHelper.LINKEDIN_CAT, 1.0, log);
 
             foreach (SocialPost post in posts)
             {
-                PostToLinkedIn(post);
-            }
-                        
-            log.LogInformation($"LinkedIn: wrote {posts.Count} blog posts to social media");
+                PostToLinkedIn(post, log);
+            }                        
+            log.LogInformation($"LinkedIn: finished writing {posts.Count} blog posts to social media");
         }
         
-        public static void PostToLinkedIn(SocialPost post)
-        {
-            // schedule the posts
-            // create the json
-
+        public static void PostToLinkedIn(SocialPost post, ILogger log)
+        {            
+            log.LogInformation($"PostToLinkedIn starting");
             string platform = "linkedin";
-            Console.WriteLine($"PostToLinkedIn starting ");
             string response = "";
             if (post != null && !string.IsNullOrEmpty(post.Text))
             {
@@ -48,33 +40,33 @@ namespace RyanSwanstrom.Function
                 platforms.Add(platform);
                 json.Add("platforms", platforms);
 
-                if ( !String.IsNullOrEmpty(post.VerticalVideo) )
+                if ( !String.IsNullOrEmpty(post.Video) )
                 {
                     JsonArray mediaUrls = new JsonArray();
-                    mediaUrls.Add(post.VerticalVideo); // set to the Photo URL
+                    mediaUrls.Add(post.Video); // set to the Photo URL
                     json.Add("mediaUrls", mediaUrls);
 
-                    if ( !String.IsNullOrEmpty(post.VerticalVideoThumbnail))
+                    if ( !String.IsNullOrEmpty(post.VideoThumbnail))
                     {
                         JsonObject options = new JsonObject();
-                        options.Add("thumbNail", post.VerticalVideoThumbnail);
+                        options.Add("thumbNail", post.VideoThumbnail);
                         json.Add("linkedInOptions", options); 
                     }
                 }
 
                 //add auto schedule options
                 JsonObject sched = new JsonObject();
-                sched.Add("title", LINKEDIN_SCHEDULE);
+                sched.Add("title", SocialMediaHelper.LINKEDIN_SCHEDULE);
                 sched.Add("schedule", true);
                 json.Add("autoSchedule", sched); 
 
-                response = SocialMediaHelper.PostToSocial(json);
+                response = SocialMediaHelper.PostToSocial(json, log);
             }
             else
             {
-                Console.WriteLine($"PostToLinkedIn: Text is null: {post}");
+                log.LogInformation($"PostToLinkedIn: Text is null: {post}");
             }
-            Console.WriteLine($"PostToLinkedIn complete - response: {response}");
+            log.LogInformation($"PostToLinkedIn complete - response: {response}");
         }
     }
 }

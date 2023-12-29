@@ -6,17 +6,25 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 
 namespace RyanSwanstrom.Function
 {
     public class SocialMediaHelper
     {
         private static string AYRSHARE_API_KEY = Environment.GetEnvironmentVariable("AYRSHARE_API_KEY");
-        private static string WILL_POST_TO_SOCIAL = Environment.GetEnvironmentVariable("WILL_POST_TO_SOCIAL");
+        private static string WILL_POST_TO_SOCIAL = Environment.GetEnvironmentVariable("WILL_POST_TO_SOCIAL");        
+        public static string LINKEDIN_SCHEDULE = Environment.GetEnvironmentVariable("LINKEDIN_SCHEDULE");       
+        public static string YOUTUBE_SCHEDULE = Environment.GetEnvironmentVariable("YOUTUBE_SCHEDULE");       
+        public static string TIKTOK_SCHEDULE = Environment.GetEnvironmentVariable("TIKTOK_SCHEDULE");       
+        public static string INSTAGRAM_SCHEDULE = Environment.GetEnvironmentVariable("INSTAGRAM_SCHEDULE");       
+        public static string FACEBOOK_SCHEDULE = Environment.GetEnvironmentVariable("FACEBOOK_SCHEDULE");     
+        public static string PINTEREST_SCHEDULE = Environment.GetEnvironmentVariable("PINTEREST_SCHEDULE");     
+        public static string THREADS_SCHEDULE = Environment.GetEnvironmentVariable("THREADS_SCHEDULE");
        
-        public static string PostToSocial(JsonObject json)
+        public static string PostToSocial(JsonObject json, ILogger log)
         {
-            Console.WriteLine($"PostToSocial: {json.ToString()}");
+            log.LogInformation($"PostToSocial: {json.ToString()}");
             string rVal = string.Empty;
 
             if ("y".Equals(WILL_POST_TO_SOCIAL))
@@ -44,7 +52,7 @@ namespace RyanSwanstrom.Function
             }
             else
             {
-                Console.WriteLine("PostToSocial: No results because WILL_POST_TO_SOCIAL flag is not set to 'y'");
+                log.LogInformation("PostToSocial: No results because WILL_POST_TO_SOCIAL flag is not set to 'y'");
             }
 
             return rVal;
