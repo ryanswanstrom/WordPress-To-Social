@@ -56,7 +56,7 @@ namespace RyanSwanstrom.Function
             mediaUrls.Add(post.Video); // set to the video URL
             json.Add("mediaUrls", mediaUrls);
 
-            //add InstaGram options
+            //add Facebook options
             JsonObject fbOptions = new JsonObject();
             fbOptions.Add("reels", true);
             if (!String.IsNullOrEmpty(post.Title))
