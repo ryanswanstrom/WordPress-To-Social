@@ -37,11 +37,19 @@ namespace RyanSwanstrom.Function
                 log.LogInformation($"TikTok: post does not contain a vertical video");
                 return;
             }
+
+            string postText = String.Empty;
+            if (!String.IsNullOrEmpty(post.Title))
+            {
+                postText = post.Title + System.Environment.NewLine;
+            }       
+            foreach (string tag in post.Tags)
+            {
+                postText += $"#{tag} ";
+            }
             
             JsonObject json = new JsonObject();
-            json.Add("post", String.IsNullOrEmpty(post.Title) 
-                    ? String.Empty
-                    : post.Title[..Math.Min(post.Title.Length, 2200)] ); // max 2200, can be empty
+            json.Add("post", postText[..Math.Min(postText.Length, 2200)] ); // max 2200, can be empty
 
             JsonArray platforms = new JsonArray();
             platforms.Add(platform);

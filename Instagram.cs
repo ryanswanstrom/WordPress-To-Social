@@ -48,8 +48,7 @@ namespace RyanSwanstrom.Function
             if (!String.IsNullOrEmpty(post.Text))
             {
                 postText = post.Text + System.Environment.NewLine;
-            }
-             
+            }            
             foreach (string tag in post.Tags)
             {
                 postText += $"#{tag} ";
