@@ -58,7 +58,10 @@ namespace RyanSwanstrom.Function
 
             //add Facebook options
             JsonObject fbOptions = new JsonObject();
-            fbOptions.Add("reels", true);
+            if (post.IsVideoVertical) 
+            {
+                fbOptions.Add("reels", true);
+            }            
             if (!String.IsNullOrEmpty(post.Title))
             {
                 fbOptions.Add("title", post.Title[..Math.Min(post.Title.Length, 255)]); 
