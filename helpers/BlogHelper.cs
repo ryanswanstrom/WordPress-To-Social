@@ -30,7 +30,9 @@ namespace RyanSwanstrom.Function
 
             List<SocialPost> socialPosts = new List<SocialPost>();
             var queryBuilder = new PostsQueryBuilder();
-            queryBuilder.After = DateTime.Now.AddDays(0-DaysBack);
+            DateTime currentTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            queryBuilder.After = currentTime.AddDays(0-DaysBack);
+            log.LogInformation($"Looking for blog posts newer than {queryBuilder.After}, current time is {currentTime}");
             queryBuilder.Categories = new List<int> { CatID };
             Task<IEnumerable<Post>> posts = wpclient.Posts.QueryAsync(queryBuilder);
             foreach (Post p in posts.Result)
@@ -55,7 +57,7 @@ namespace RyanSwanstrom.Function
 
         private static SocialPost ParseText(String text, WordPressClient wpclient, ILogger log)
         {
-            log.LogInformation(text);
+            //log.LogInformation(text);
             SocialPost sp = new SocialPost();
             String cleanString = text;
             if (String.IsNullOrEmpty(text))
@@ -115,7 +117,7 @@ namespace RyanSwanstrom.Function
                 else if (cleanString.StartsWith("<figure"))
                 {
                     log.LogInformation("figure");
-                    log.LogInformation(cleanString);
+                    //log.LogInformation(cleanString);
 
                     //TODO: sp.Video = URL 
                     // pull out the <figure   to </figure> 
@@ -138,8 +140,8 @@ namespace RyanSwanstrom.Function
                         log.LogInformation("width: " + m.MediaDetails.Width);
                         log.LogInformation("height: " + m.MediaDetails.Height);
                         log.LogInformation("source: " + m.SourceUrl); // this is it
-                        log.LogInformation("media: " + m.MediaType);
-                        log.LogInformation("mime: " + m.MimeType);
+                        //log.LogInformation("media: " + m.MediaType);
+                        //log.LogInformation("mime: " + m.MimeType);
                         if (m.SourceUrl.Contains(VidID)) {
                             sp.Video = m.SourceUrl;
                             if (m.MediaDetails.Height > m.MediaDetails.Width)
