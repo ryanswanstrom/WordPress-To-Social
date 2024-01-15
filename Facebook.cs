@@ -33,11 +33,6 @@ namespace RyanSwanstrom.Function
                 log.LogInformation($"Facebook: post does not contain a video");
                 return;
             } 
-            if (!post.IsVideoVertical)
-            {                
-                log.LogInformation($"Facebook: post does not contain a vertical video");
-                return;
-            }
  
             string postText = String.Empty;
             if (!String.IsNullOrEmpty(post.Text))
