@@ -183,7 +183,7 @@ namespace RyanSwanstrom.Function
             } while (!String.IsNullOrEmpty(cleanString) && !cleanString.StartsWith("<!--more-->"));
                         
             
-            sp.Text = output;
+            sp.Text = output.Trim();
             return sp;
         }
     }

@@ -39,6 +39,13 @@ namespace RyanSwanstrom.Function
                 return;
             }
 
+            if (!post.IsVideoVertical) 
+            {
+                post.Text = post.Text + Environment.NewLine + Environment.NewLine;
+                post.Text = post.Text + "Original Blog Post: " + post.URL + Environment.NewLine;
+                post.Text = post.Text + "*Affiliate Links: As an Amazon Associate I earn from qualifying purchases.*";
+            }
+
             JsonObject json = new JsonObject();
             json.Add("post", post.Text[..Math.Min(post.Text.Length, 3000)]);
 
