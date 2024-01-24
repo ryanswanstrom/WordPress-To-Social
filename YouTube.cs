@@ -42,8 +42,8 @@ namespace RyanSwanstrom.Function
             if (!post.IsVideoVertical) 
             {
                 post.Text = post.Text + Environment.NewLine + Environment.NewLine;
-                post.Text = post.Text + "Original Blog Post: " + post.URL + Environment.NewLine;
-                post.Text = post.Text + "*Affiliate Links: As an Amazon Associate I earn from qualifying purchases.*";
+                post.Text = post.Text + "*Affiliate Links: As an Amazon Associate I earn from qualifying purchases.*" + Environment.NewLine;
+                post.Text = post.Text + "Original Blog Post: " + post.URL;
             }
 
             JsonObject json = new JsonObject();
