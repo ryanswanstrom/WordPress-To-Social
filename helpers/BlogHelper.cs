@@ -125,21 +125,21 @@ namespace RyanSwanstrom.Function
                     // find the ID after videopress.com/embed/
                     int vidstart = fig.IndexOf("videopress.com/embed/"); //21
                     int vidend = fig.IndexOf('?', vidstart + 21);
-                    log.LogInformation($"start is {vidstart} and the end is {vidend}");
                     string VidID = fig.Substring(vidstart + 21, vidend - vidstart - 21);
                     log.LogInformation($"Vid ID is: {VidID}");
                     // get videos from Wordpress for last 30 days and find the one with that ID in the SourceUrl
                     var queryBuilder = new MediaQueryBuilder();
                     queryBuilder.MimeType = "video/videopress";
-                    queryBuilder.After = DateTime.Now.AddDays(-30);
+                    queryBuilder.After = DateTime.UtcNow.AddDays(-30);
+                    queryBuilder.PerPage = 60; //defaults to 10, so this is needed
                     var media = wpclient.Media.QueryAsync(queryBuilder);
                     media.Wait();
                     foreach (MediaItem m in media.Result)
                     {
-                        log.LogInformation(" the id is: " + m.Id);
-                        log.LogInformation("width: " + m.MediaDetails.Width);
-                        log.LogInformation("height: " + m.MediaDetails.Height);
-                        log.LogInformation("source: " + m.SourceUrl); // this is it
+                        //log.LogInformation(" the id is: " + m.Id);
+                        //log.LogInformation("width: " + m.MediaDetails.Width);
+                        //log.LogInformation("height: " + m.MediaDetails.Height);
+                        log.LogInformation("Checking video source: " + m.SourceUrl); // this is it
                         //log.LogInformation("media: " + m.MediaType);
                         //log.LogInformation("mime: " + m.MimeType);
                         if (m.SourceUrl.Contains(VidID)) {
